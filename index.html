@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Anusha – Your Supportive Friend</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>🎧 Meet Anusha – Your Supportive Friend</h1>
+
+  <label for="language">Choose Language:</label>
+  <select id="language">
+    <option value="en">English</option>
+    <option value="te">Telugu</option>
+    <option value="kn">Kannada</option>
+    <option value="hi">Hindi</option>
+  </select>
+
+  <div class="controls">
+    <button onclick="startListening()">🎙️ Start Listening</button>
+    <button onclick="stopListening()">🛑 Stop</button>
+    <button onclick="startBreathing()">🧘 Breathing Exercise</button>
+    <button onclick="giveDistraction()">🎭 Distract Me</button>
+  </div>
+
+  <div id="transcript"><strong>You said:</strong> <span id="userText"></span></div>
+  <div id="response"><strong>Anusha says:</strong> <span id="friendReply"></span></div>
+
+  <div id="breathingCircle" class="circle hidden"></div>
+
+  <div id="moodTracker">
+    <p>How are you feeling now?</p>
+    <div class="moods">
+      <button onclick="logMood('😊')">😊</button>
+      <button onclick="logMood('😐')">😐</button>
+      <button onclick="logMood('😞')">😞</button>
+    </div>
+    <canvas id="moodChart" width="400" height="200"></canvas>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="supportive-friend.js"></script>
+  <script src="mood-tracker.js"></script>
+</body>
+</html>
