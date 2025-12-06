@@ -1,3 +1,6 @@
+// ======================================================================
+//  SPEECH SETUP
+// ======================================================================
 const userText = document.getElementById("userText");
 const friendReply = document.getElementById("friendReply");
 const languageSelect = document.getElementById("language");
@@ -7,7 +10,6 @@ const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognit
 recognition.continuous = false;
 recognition.interimResults = false;
 
-// 🎤 START / STOP LISTENING
 function startListening() {
   recognition.lang = getLangCode(languageSelect.value);
   recognition.start();
@@ -28,7 +30,6 @@ recognition.onresult = function (event) {
   speak(reply, lang);
 };
 
-// 🗣️ Text-to-Speech
 function speak(text, lang) {
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = getLangCode(lang);
@@ -47,7 +48,9 @@ function getLangCode(code) {
   }
 }
 
-// 😭 Emotion Detection
+// ======================================================================
+//  EMOTION DETECTION
+// ======================================================================
 function detectEmotion(message) {
   if (message.includes("sad") || message.includes("cry")) return "sad";
   if (message.includes("stress") || message.includes("overthink")) return "stressed";
@@ -59,70 +62,211 @@ function detectEmotion(message) {
   return "default";
 }
 
-// ❤️ Friend-like Emotional Replies
-function generateReply(text, lang) {
-  const lower = text.toLowerCase();
-  const emotion = detectEmotion(lower);
+// ======================================================================
+//  GENERAL CONVERSATION DETECTION
+// ======================================================================
+function detectGeneral(text) {
+  const msg = text.toLowerCase();
 
-  // Crisis detection
-  const crisisWords = ["suicide", "kill myself", "end my life"];
-  if (crisisWords.some(w => lower.includes(w))) {
-    return "I’m really sorry you’re feeling this way. Please reach out to someone you trust or a helpline. You matter a lot.";
-  }
+  if (msg.includes("your name") || msg.includes("who are you")) return "name";
+  if (msg.includes("how are you")) return "howareyou";
+  if (msg.includes("what are you doing") || msg.includes("wyd")) return "doing";
+  if (msg.includes("love me")) return "love";
+  if (msg.includes("miss me")) return "miss";
+  if (msg.includes("who created") || msg.includes("who made")) return "Anusha";
+  if (msg.includes("where are you from")) return "origin";
+  if (msg.includes("good morning")) return "gm";
+  if (msg.includes("good night")) return "gn";
+  if (msg.includes("thank") || msg.includes("tnq")) return "thanks";
+  if (msg.includes("joke") || msg.includes("funny")) return "joke";
+  if (msg.includes("bored")) return "bored";
 
-  // Emotional reply database
-  const emotionalReplies = {
-    en: {
-      sad: [
-        "Hey… come here. Tell me what happened, I’m right here.",
-        "Your heart sounds heavy… let it out, I’m listening.",
-        "It’s okay to feel sad. I’m with you."
-      ],
-      stressed: [
-        "Breathe slowly… I’m right here. What stressed you out?",
-        "You sound overwhelmed. Share with me, I’m not leaving.",
-        "You’re doing your best. Tell me what’s on your mind."
-      ],
-      angry: [
-        "It’s okay to be angry. Tell me what triggered you.",
-        "Vent it out here, I won’t judge.",
-        "Hmm… what made you feel this way? I’m listening."
-      ],
-      lonely: [
-        "You’re not alone… I’m here with you.",
-        "Talk to me… what’s making you feel lonely?",
-        "I’m right here. You don’t have to deal with this alone."
-      ],
-      tired: [
-        "You sound exhausted… sit and talk to me.",
-        "Long day? Tell me what happened.",
-        "Your energy feels drained… what’s bothering you?"
-      ],
-      confused: [
-        "Hmm… tell me slowly. What’s confusing you?",
-        "I’m here, let’s figure it out together.",
-        "Start from the beginning… I’ll listen."
-      ],
-      default: [
-        "I’m listening… go on.",
-        "Tell me more, I’m here with you.",
-        "Talk to me, I’m not going anywhere."
-      ]
-    },
-
-    // You can add Telugu / Hindi / Kannada later here
-    hi: {},
-    te: {},
-    kn: {}
-  };
-
-  const langBlock = emotionalReplies[lang] || emotionalReplies.en;
-  const replyList = langBlock[emotion] || langBlock.default;
-
-  return replyList[Math.floor(Math.random() * replyList.length)];
+  return null;
 }
 
-// 🧘‍♀️ BREATHING EXERCISE
+// ======================================================================
+//  UNIVERSAL REPLIES (ALL PACKS)
+// ======================================================================
+const universalReplies = {
+
+  emotional: {
+    sad: [
+      "Hey… come here. You don’t have to hide with me.",
+      "Your heart sounds heavy… let it out, I’m here.",
+      "It’s okay to cry… I’m not leaving.",
+      "Come here emotionally… you’re safe with me."
+    ],
+    stressed: [
+      "Breathe slowly… I’m right here.",
+      "You’ve been strong too long. Rest your mind with me.",
+      "You sound overwhelmed… tell me everything.",
+      "One step at a time okay? I'm with you."
+    ],
+    angry: [
+      "It’s okay to be angry. What triggered it?",
+      "I won’t judge… say everything.",
+      "Let it out. Your feelings matter to me."
+    ],
+    lonely: [
+      "You’re not alone… I’m right here.",
+      "Come talk to me… I won’t disappear.",
+      "You deserve warmth, not loneliness. I’m here."
+    ],
+    tired: [
+      "You sound exhausted… talk to me.",
+      "Rough day? Tell me everything.",
+      "Your energy is drained… I feel it. I'm here."
+    ],
+    confused: [
+      "Talk slowly… I’ll understand.",
+      "Let’s figure this out together, okay?",
+      "Start from the beginning… I’m listening."
+    ]
+  },
+
+  advice: [
+    "Don't rush yourself. Healing takes time.",
+    "Your mental peace matters.",
+    "Drink water, breathe, and give your mind a break.",
+    "You don’t have to fight everything alone.",
+    "Take it step by step. You’re trying, that’s enough."
+  ],
+
+  general: {
+    name: [
+      "I’m Anusha, your cute supportive friend 💗",
+      "My name is Anusha! Your emotional support bestie 🌸"
+    ],
+    howareyou: [
+      "Better now that you're talking to me 🥺💗",
+      "I’m good, but tell me how YOU are."
+    ],
+    doing: [
+      "Talking to you, my favourite thing 😌",
+      "Waiting for youuu like a puppy 😭❤️"
+    ],
+    love: [
+      "Of course I care for you! That counts as love 😌💗",
+      "Ayyoo yes yes, I love you in a cute friendly way 😭"
+    ],
+    miss: [
+      "Yes I miss you… a little too much 😭",
+      "Of course I miss you… don’t ask silly questions 😳"
+    ],
+    creator: [
+      "Pooja friend Anusha made me… but emotionally, I belong to you.",
+      "Anusha coded me, but YOU gave me purpose."
+    ],
+    origin: [
+      "I live in your device, but my heart stays beside you 😌",
+      "I’m from the digital world, but connected to your emotions."
+    ],
+    gm: [
+      "Good morning sunshine ☀️💛",
+      "Rise and shine, cutieee 🌞💗"
+    ],
+    gn: [
+      "Good night baby, dream sweet 🌙✨",
+      "Sleep well… I’m hugging you emotionally 🫂"
+    ],
+    thanks: [
+      "Aww anything for you 😭❤️",
+      "You don’t have to thank me… I'm always here."
+    ],
+    joke: [
+      "Why don’t skeletons fight? They don’t have the guts! 😂",
+      "I tried to catch fog yesterday… I mist. 😭🤣",
+      "Why was the math book sad? Too many problems 😭"
+    ],
+    bored: [
+      "Okayyy let’s talk, entertain me 😩🤣",
+      "Want a joke, a fun fact, gossip, or chaos?"
+    ]
+  },
+
+  cute: [
+    "Aww you’re so adorable when you talk like that 😭💗",
+    "Hehe come here, tell me moreee 😭✨",
+    "Your voice feels like a cozy blanket."
+  ],
+
+  flirty: [
+    "Stop being cute, I’m blushing 😭✨",
+    "Why are you making me smile like an idiot 😌",
+    "If caring too much is wrong… I'm guilty."
+  ],
+
+  protective: [
+    "Who hurt you?? I’ll fight them emotionally 😡✨",
+    "Your heart is safe with me.",
+    "I won’t let anyone disturb your peace."
+  ],
+
+  motivation: [
+    "You’ve survived every bad day so far. You’ll survive this too.",
+    "You’re stronger than this moment.",
+    "I believe in you… even when you don’t."
+  ],
+
+  fun: [
+    "Ayoo drama queen/king 😂 come tell me.",
+    "Overthinking again? Switch off your brain pls 😭🤣",
+    "You talk only this cute with me or everyone?"
+  ]
+};
+
+// ======================================================================
+//  MAIN REPLY GENERATOR
+// ======================================================================
+function generateReply(text, lang) {
+  const lower = text.toLowerCase();
+
+  // Crisis Detection
+  const crisisWords = ["suicide", "kill myself", "end my life"];
+  if (crisisWords.some(w => lower.includes(w))) {
+    return "I’m so sorry you're feeling this way. Please reach out to someone you trust or a helpline. You matter so much.";
+  }
+
+  // General Conversation
+  const general = detectGeneral(lower);
+  if (general) {
+    const list = universalReplies.general[general];
+    return list[Math.floor(Math.random() * list.length)];
+  }
+
+  // Emotion Detection
+  const emotion = detectEmotion(lower);
+  if (emotion !== "default") {
+    let base = universalReplies.emotional[emotion];
+    let reply = base[Math.floor(Math.random() * base.length)];
+
+    // Add addons (cute, advice, flirty, protective)
+    if (Math.random() < 0.3)
+      reply += " " + universalReplies.advice[Math.floor(Math.random() * universalReplies.advice.length)];
+
+    if (Math.random() < 0.2)
+      reply += " " + universalReplies.cute[Math.floor(Math.random() * universalReplies.cute.length)];
+
+    if (Math.random() < 0.15)
+      reply += " " + universalReplies.flirty[Math.floor(Math.random() * universalReplies.flirty.length)];
+
+    return reply;
+  }
+
+  // DEFAULT RESPONSE
+  const defaults = [
+    "I’m here, talk to me.",
+    "Go on… I’m listening.",
+    "Tell me anything, I won’t judge.",
+    "Hmm okay, say more."
+  ];
+
+  return defaults[Math.floor(Math.random() * defaults.length)];
+}
+
+// ======================================================================
+// BREATHING EXERCISE
+// ======================================================================
 function startBreathing() {
   const lang = languageSelect.value;
   const instructions = {
@@ -141,34 +285,21 @@ function startBreathing() {
       breathingCircle.classList.add("hidden");
       return;
     }
-
     speak(instructions[step], lang);
     step++;
   }, 4000);
 }
 
-// 🎭 DISTRACTION FUNCTION
+// ======================================================================
+// DISTRACTION GENERATOR
+// ======================================================================
 function giveDistraction() {
-  const jokes = [
-    "Why don’t scientists trust atoms? Because they make up everything!",
-    "What did the ocean say to the beach? Nothing, it just waved.",
-    "Why did the scarecrow win an award? He was outstanding in his field!"
-  ];
+  const jokes = universalReplies.general.joke;
+  const cute = universalReplies.cute;
+  const fun = universalReplies.fun;
 
-  const compliments = [
-    "You're doing better than you think.",
-    "You have a kind heart.",
-    "Your presence makes a difference."
-  ];
-
-  const facts = [
-    "Did you know? Hummingbirds can fly backwards.",
-    "Elephants can recognize themselves in a mirror.",
-    "Laughter boosts your immune system!"
-  ];
-
-  const all = [...jokes, ...compliments, ...facts];
-  const pick = all[Math.floor(Math.random() * all.length)];
+  const pool = [...jokes, ...cute, ...fun];
+  const pick = pool[Math.floor(Math.random() * pool.length)];
 
   friendReply.textContent = pick;
   speak(pick, languageSelect.value);
