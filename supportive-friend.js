@@ -7,6 +7,7 @@ const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognit
 recognition.continuous = false;
 recognition.interimResults = false;
 
+// 🎤 START / STOP LISTENING
 function startListening() {
   recognition.lang = getLangCode(languageSelect.value);
   recognition.start();
@@ -19,12 +20,15 @@ function stopListening() {
 recognition.onresult = function (event) {
   const transcript = event.results[0][0].transcript;
   userText.textContent = transcript;
+
   const lang = languageSelect.value;
   const reply = generateReply(transcript, lang);
+
   friendReply.textContent = reply;
   speak(reply, lang);
 };
 
+// 🗣️ Text-to-Speech
 function speak(text, lang) {
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = getLangCode(lang);
@@ -43,77 +47,82 @@ function getLangCode(code) {
   }
 }
 
-// Emotion and crisis detection
-function generateReply(text, lang) {
-  const lower = text.toLowerCase();
+// 😭 Emotion Detection
+function detectEmotion(message) {
+  if (message.includes("sad") || message.includes("cry")) return "sad";
+  if (message.includes("stress") || message.includes("overthink")) return "stressed";
+  if (message.includes("angry") || message.includes("mad")) return "angry";
+  if (message.includes("alone") || message.includes("lonely")) return "lonely";
+  if (message.includes("tired") || message.includes("exhausted")) return "tired";
+  if (message.includes("confused") || message.includes("idk")) return "confused";
 
-  const crisisWords = {
-    en: ["suicide", "end my life", "kill myself"],
-    hi: ["आत्महत्या", "मरना चाहता", "खत्म कर दूं"],
-    te: ["ఆత్మహత్య", "చచ్చిపోవాలి", "నన్ను చంపుకోవాలి"],
-    kn: ["ಆತ್ಮಹತ್ಯೆ", "ನಾನು ಸಾಯಬೇಕು", "ನನ್ನನ್ನು ಕೊಲ್ಲಬೇಕು"]
-  };
-
-  const stressWords = {
-    en: ["tired", "anxious", "depressed", "sad", "stressed"],
-    hi: ["थका", "चिंतित", "उदास", "तनाव"],
-    te: ["అలసిపోయాను", "బాధగా ఉంది", "నిరుత్సాహంగా"],
-    kn: ["ಥಾಕಿದೇನೆ", "ಚಿಂತೆ", "ದುಃಖ", "ಒತ್ತಡ"]
-  };
-
-  const responses = {
-    en: {
-      stress: [
-        "Hey, this is Anusha. I'm here for you. Want to try a deep breath together?",
-        "That sounds tough. You're not alone. Anusha is listening.",
-        "Sending you a big virtual hug. You're doing your best."
-      ],
-      crisis: "I'm really sorry you're feeling this way. Please talk to someone you trust or call a local helpline. You're not alone, and you matter."
-    },
-    hi: {
-      stress: [
-        "मैं अनुषा हूँ, मैं तुम्हारे साथ हूँ। चलो एक गहरी साँस लें।",
-        "यह कठिन लग रहा है। आप अकेले नहीं हैं।",
-        "आपकी भावनाएँ महत्वपूर्ण हैं। सब ठीक हो जाएगा।"
-      ],
-      crisis: "मुझे खेद है कि आप ऐसा महसूस कर रहे हैं। कृपया किसी भरोसेमंद व्यक्ति से बात करें या हेल्पलाइन से संपर्क करें। आप अकेले नहीं हैं।"
-    },
-    te: {
-      stress: [
-        "నేను అనుషా. నీతోనే ఉన్నాను. ఒక లోతైన శ్వాస తీసుకుందాం.",
-        "ఇది కష్టంగా అనిపిస్తోంది. నీవు ఒంటరిగా లేవు.",
-        "నీ భావాలు ముఖ్యం. నీవు బలంగా ఉన్నావు."
-      ],
-      crisis: "నీవు ఇలా అనిపించుకోవడం బాధాకరం. దయచేసి నమ్మకమైన వ్యక్తిని సంప్రదించు లేదా హెల్ప్‌లైన్‌కు కాల్ చేయి. నీవు ఒంటరిగా లేవు."
-    },
-    kn: {
-      stress: [
-        "ನಾನು ಅನುಷಾ. ನಿನ್ನ ಜೊತೆಯಲ್ಲಿದ್ದೇನೆ. ಒಂದು ಆಳವಾದ ಉಸಿರಾಟ ಮಾಡೋಣ.",
-        "ಇದು ಕಠಿಣವಾಗಿದೆ ಎಂದು ತೋರುತ್ತದೆ. ನೀನು ಒಬ್ಬಳಲ್ಲ.",
-        "ನಿನ್ನ ಭಾವನೆಗಳು ಮುಖ್ಯ. ನೀನು ಶಕ್ತಿಶಾಲಿ."
-      ],
-      crisis: "ನೀನು ಹೀಗೆ ಅನುಭವಿಸುತ್ತಿರುವುದಕ್ಕೆ ವಿಷಾದವಾಗಿದೆ. ದಯವಿಟ್ಟು ನಂಬಿಕಸ್ಥ ವ್ಯಕ್ತಿಯೊಂದಿಗೆ ಮಾತನಾಡಿ ಅಥವಾ ಸಹಾಯವಾಣಿ ಸಂಪರ್ಕಿಸಿ. ನೀನು ಒಬ್ಬಳಲ್ಲ."
-    }
-  };
-
-  const crisis = crisisWords[lang].some(word => lower.includes(word));
-  if (crisis) return responses[lang].crisis;
-
-  const stress = stressWords[lang].some(word => lower.includes(word));
-  if (stress) {
-    const options = responses[lang].stress;
-    return options[Math.floor(Math.random() * options.length)];
-  }
-
-  return {
-    en: "I'm listening. Tell me more.",
-    hi: "मैं सुन रही हूँ। और बताओ।",
-    te: "నేను వింటున్నాను. ఇంకా చెప్పు.",
-    kn: "ನಾನು ಕೇಳುತ್ತಿದ್ದೇನೆ. ಇನ್ನಷ್ಟು ಹೇಳು."
-  }[lang];
+  return "default";
 }
 
-// 🧘 Breathing Exercise
+// ❤️ Friend-like Emotional Replies
+function generateReply(text, lang) {
+  const lower = text.toLowerCase();
+  const emotion = detectEmotion(lower);
+
+  // Crisis detection
+  const crisisWords = ["suicide", "kill myself", "end my life"];
+  if (crisisWords.some(w => lower.includes(w))) {
+    return "I’m really sorry you’re feeling this way. Please reach out to someone you trust or a helpline. You matter a lot.";
+  }
+
+  // Emotional reply database
+  const emotionalReplies = {
+    en: {
+      sad: [
+        "Hey… come here. Tell me what happened, I’m right here.",
+        "Your heart sounds heavy… let it out, I’m listening.",
+        "It’s okay to feel sad. I’m with you."
+      ],
+      stressed: [
+        "Breathe slowly… I’m right here. What stressed you out?",
+        "You sound overwhelmed. Share with me, I’m not leaving.",
+        "You’re doing your best. Tell me what’s on your mind."
+      ],
+      angry: [
+        "It’s okay to be angry. Tell me what triggered you.",
+        "Vent it out here, I won’t judge.",
+        "Hmm… what made you feel this way? I’m listening."
+      ],
+      lonely: [
+        "You’re not alone… I’m here with you.",
+        "Talk to me… what’s making you feel lonely?",
+        "I’m right here. You don’t have to deal with this alone."
+      ],
+      tired: [
+        "You sound exhausted… sit and talk to me.",
+        "Long day? Tell me what happened.",
+        "Your energy feels drained… what’s bothering you?"
+      ],
+      confused: [
+        "Hmm… tell me slowly. What’s confusing you?",
+        "I’m here, let’s figure it out together.",
+        "Start from the beginning… I’ll listen."
+      ],
+      default: [
+        "I’m listening… go on.",
+        "Tell me more, I’m here with you.",
+        "Talk to me, I’m not going anywhere."
+      ]
+    },
+
+    // You can add Telugu / Hindi / Kannada later here
+    hi: {},
+    te: {},
+    kn: {}
+  };
+
+  const langBlock = emotionalReplies[lang] || emotionalReplies.en;
+  const replyList = langBlock[emotion] || langBlock.default;
+
+  return replyList[Math.floor(Math.random() * replyList.length)];
+}
+
+// 🧘‍♀️ BREATHING EXERCISE
 function startBreathing() {
   const lang = languageSelect.value;
   const instructions = {
@@ -132,12 +141,13 @@ function startBreathing() {
       breathingCircle.classList.add("hidden");
       return;
     }
+
     speak(instructions[step], lang);
     step++;
   }, 4000);
 }
 
-// 🎭 Distraction Generator
+// 🎭 DISTRACTION FUNCTION
 function giveDistraction() {
   const jokes = [
     "Why don’t scientists trust atoms? Because they make up everything!",
@@ -159,6 +169,7 @@ function giveDistraction() {
 
   const all = [...jokes, ...compliments, ...facts];
   const pick = all[Math.floor(Math.random() * all.length)];
+
   friendReply.textContent = pick;
   speak(pick, languageSelect.value);
 }
